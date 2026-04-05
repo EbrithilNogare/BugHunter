@@ -18,8 +18,7 @@ There's no clicking, no menus, just you and the code. Your final score is your t
 
 ## How to play
 
-<!-- Screenshot: active line highlight with bug centered on it -->
-<!-- ![Catching a bug](screenshots/catch.png) -->
+<img width="606" height="370" alt="ebrithilnogare github io_BugHunter_" src="https://github.com/user-attachments/assets/a1481def-51e0-4b5c-8520-0bc9d00f4e6c" />
 
 **1. Scroll through the code**
 Use your mouse wheel or arrow keys to scroll. The blue highlighted band in the center of the screen is your active line — that's your "cursor".
