@@ -1,0 +1,35 @@
+.root {
+  width: min(135px, 10vw);
+  flex-shrink: 0;
+  height: 100%;
+  position: relative;
+  border-left: 1px solid var(--border-subtle);
+  overflow: hidden;
+  cursor: default;
+}
+
+.canvas {
+  display: block;
+}
+
+/* Currently-visible viewport band */
+.viewport {
+  position: absolute;
+  left: 0;
+  right: 0;
+  background: rgba(139, 148, 158, 0.2);
+  border-top: 1px solid rgba(139, 148, 158, 0.5);
+  border-bottom: 1px solid rgba(139, 148, 158, 0.5);
+  pointer-events: none;
+}
+
+/* Bug position indicator */
+.bugLine {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--red);
+  box-shadow: 0 0 4px var(--red);
+  pointer-events: none;
+}

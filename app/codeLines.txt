@@ -1,0 +1,585 @@
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { ApiClient } from '../lib/api-client';
+import { User, UserProfile, AuthToken } from '../types/user';
+import { formatDate, parseISO } from 'date-fns';
+
+interface DashboardProps {
+  userId: string;
+  onLogout: () => void;
+  theme?: 'light' | 'dark';
+}
+
+interface DashboardState {
+  user: User | null;
+  profile: UserProfile | null;
+  isLoading: boolean;
+  error: string | null;
+  lastSync: Date | null;
+}
+
+const SYNC_INTERVAL_MS = 30_000;
+const MAX_RETRY_ATTEMPTS = 3;
+const CACHE_TTL_SECONDS = 300;
+
+export function Dashboard({ userId, onLogout, theme = 'light' }: DashboardProps) {
+  const [state, setState] = useState<DashboardState>({
+    user: null,
+    profile: null,
+    isLoading: true,
+    error: null,
+    lastSync: null,
+  });
+
+  const apiClient = useRef(new ApiClient());
+  const retryCount = useRef(0);
+  const syncTimer = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const fetchUserData = useCallback(async () => {
+    try {
+      setState(prev => ({ ...prev, isLoading: true, error: null }));
+
+      const [user, profile] = await Promise.all([
+        apiClient.current.getUser(userId),
+        apiClient.current.getUserProfile(userId),
+      ]);
+
+      retryCount.current = 0;
+
+      setState(prev => ({
+        ...prev,
+        user,
+        profile,
+        isLoading: false,
+        lastSync: new Date(),
+      }));
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Unknown error';
+
+      if (retryCount.current < MAX_RETRY_ATTEMPTS) {
+        retryCount.current += 1;
+        setTimeout(fetchUserData, 1000 * retryCount.current);
+      } else {
+        setState(prev => ({
+          ...prev,
+          isLoading: false,
+          error: `Failed to load user data: ${message}`,
+        }));
+      }
+    }
+  }, [userId]);
+
+  useEffect(() => {
+    fetchUserData();
+
+    syncTimer.current = setInterval(fetchUserData, SYNC_INTERVAL_MS);
+
+    return () => {
+      if (syncTimer.current) {
+        clearInterval(syncTimer.current);
+      }
+    };
+  }, [fetchUserData]);
+
+  const handleRefresh = useCallback(() => {
+    retryCount.current = 0;
+    fetchUserData();
+  }, [fetchUserData]);
+
+  const handleLogout = useCallback(async () => {
+    try {
+      await apiClient.current.logout();
+    } catch {
+      // Ignore logout errors
+    } finally {
+      onLogout();
+    }
+  }, [onLogout]);
+
+  const formatLastSync = (date: Date | null): string => {
+    if (!date) return 'Never';
+    return formatDate(date, 'HH:mm:ss');
+  };
+
+  if (state.isLoading && !state.user) {
+    return (
+      <div className={`dashboard dashboard--loading theme-${theme}`}>
+        <Spinner size='large' />
+        <p>Loading dashboard...</p>
+      </div>
+    );
+  }
+
+  if (state.error) {
+    return (
+      <div className={`dashboard dashboard--error theme-${theme}`}>
+        <ErrorIcon />
+        <h2>Something went wrong</h2>
+        <p>{state.error}</p>
+        <button onClick={handleRefresh}>Try again</button>
+      </div>
+    );
+  }
+
+  return (
+    <div className={`dashboard theme-${theme}`}>
+      <header className='dashboard__header'>
+        <div className='dashboard__user-info'>
+          <Avatar src={state.profile?.avatarUrl} size={40} />
+          <div>
+            <h1>{state.user?.displayName ?? state.user?.username}</h1>
+            <p className='dashboard__email'>{state.user?.email}</p>
+          </div>
+        </div>
+        <div className='dashboard__actions'>
+          <span className='dashboard__sync-time'>
+            Last synced: {formatLastSync(state.lastSync)}
+          </span>
+          <button
+            className='btn btn--secondary'
+            onClick={handleRefresh}
+            disabled={state.isLoading}
+          >
+            {state.isLoading ? 'Syncing...' : 'Refresh'}
+          </button>
+          <button className='btn btn--danger' onClick={handleLogout}>
+            Logout
+          </button>
+        </div>
+      </header>
+
+      <main className='dashboard__content'>
+        <section className='dashboard__section'>
+          <h2>Profile</h2>
+          <ProfileCard profile={state.profile} />
+        </section>
+
+        <section className='dashboard__section'>
+          <h2>Activity</h2>
+          <ActivityFeed userId={userId} />
+        </section>
+      </main>
+    </div>
+  );
+}
+
+function ProfileCard({ profile }: { profile: UserProfile | null }) {
+  if (!profile) return <Skeleton />;
+
+  return (
+    <div className='profile-card'>
+      <dl>
+        <dt>Bio</dt>
+        <dd>{profile.bio || 'No bio provided'}</dd>
+        <dt>Location</dt>
+        <dd>{profile.location || 'Unknown'}</dd>
+        <dt>Member since</dt>
+        <dd>{formatDate(parseISO(profile.createdAt), 'MMMM yyyy')}</dd>
+        <dt>Repository count</dt>
+        <dd>{profile.repoCount.toLocaleString()}</dd>
+      </dl>
+    </div>
+  );
+}
+
+function ActivityFeed({ userId }: { userId: string }) {
+  const [events, setEvents] = useState<ActivityEvent[]>([]);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+
+  useEffect(() => {
+    const client = new ApiClient();
+    client.getActivityEvents(userId, page).then(result => {
+      setEvents(prev => [...prev, ...result.events]);
+      setHasMore(result.hasNextPage);
+    });
+  }, [userId, page]);
+
+  return (
+    <div className='activity-feed'>
+      {events.map(event => (
+        <ActivityItem key={event.id} event={event} />
+      ))}
+      {hasMore && (
+        <button onClick={() => setPage(p => p + 1)}>Load more</button>
+      )}
+    </div>
+  );
+}
+
+export default Dashboard;
+
+type User = {
+  id: number;
+  name: string;
+  email: string;
+};
+
+type Todo = {
+  id: number;
+  title: string;
+  completed: boolean;
+};
+
+function randomId() {
+  return Math.floor(Math.random() * 1000000);
+}
+
+function delay(ms: number) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+function useToggle(initial = false) {
+  const [value, setValue] = useState(initial);
+  const toggle = useCallback(() => setValue(v => !v), []);
+  return { value, toggle };
+}
+
+function useCounter(initial = 0) {
+  const [count, setCount] = useState(initial);
+  const inc = () => setCount(c => c + 1);
+  const dec = () => setCount(c => c - 1);
+  const reset = () => setCount(initial);
+  return { count, inc, dec, reset };
+}
+
+function useUsers() {
+  const [users, setUsers] = useState<User[]>([]);
+  useEffect(() => {
+    const load = async () => {
+      await delay(50);
+      setUsers([
+        { id: 1, name: "Alice", email: "alice@test.com" },
+        { id: 2, name: "Bob", email: "bob@test.com" }
+      ]);
+    };
+    load();
+  }, []);
+  return users;
+}
+
+const UserRow: React.FC<{ user: User }> = ({ user }) => {
+  const { value, toggle } = useToggle(false);
+  return (
+    <div>
+      <span>{user.name}</span>
+      <button onClick={toggle}>{value ? "Hide" : "Show"}</button>
+      {value && <span>{user.email}</span>}
+    </div>
+  );
+};
+
+const UserList: React.FC = () => {
+  const users = useUsers();
+  return (
+    <div>
+      {users.map(u => (
+        <UserRow key={u.id} user={u} />
+      ))}
+    </div>
+  );
+};
+
+const TodoItem: React.FC<{ todo: Todo; onToggle(id: number): void }> = ({ todo, onToggle }) => {
+  return (
+    <div>
+      <input
+        type="checkbox"
+        checked={todo.completed}
+        onChange={() => onToggle(todo.id)}
+      />
+      <span>{todo.title}</span>
+    </div>
+  );
+};
+
+const TodoList: React.FC = () => {
+  const [todos, setTodos] = useState<Todo[]>([
+    { id: randomId(), title: "Write code", completed: false },
+    { id: randomId(), title: "Test feature", completed: true }
+  ]);
+
+  const toggle = (id: number) => {
+    setTodos(t =>
+      t.map(todo =>
+        todo.id === id ? { ...todo, completed: !todo.completed } : todo
+      )
+    );
+  };
+
+  const add = () => {
+    setTodos(t => [
+      ...t,
+      { id: randomId(), title: "New Task " + randomId(), completed: false }
+    ]);
+  };
+
+  return (
+    <div>
+      <button onClick={add}>Add</button>
+      {todos.map(t => (
+        <TodoItem key={t.id} todo={t} onToggle={toggle} />
+      ))}
+    </div>
+  );
+};
+
+function useSearch(items: string[]) {
+  const [query, setQuery] = useState("");
+  const results = useMemo(
+    () => items.filter(i => i.toLowerCase().includes(query.toLowerCase())),
+    [items, query]
+  );
+  return { query, setQuery, results };
+}
+
+const SearchBox: React.FC<{ items: string[] }> = ({ items }) => {
+  const { query, setQuery, results } = useSearch(items);
+  return (
+    <div>
+      <input value={query} onChange={e => setQuery(e.target.value)} />
+      <ul>
+        {results.map(r => (
+          <li key={r}>{r}</li>
+        ))}
+      </ul>
+    </div>
+  );
+};
+
+function useClock() {
+  const [time, setTime] = useState(new Date());
+  useEffect(() => {
+    const id = setInterval(() => setTime(new Date()), 1000);
+    return () => clearInterval(id);
+  }, []);
+  return time;
+}
+
+const Clock: React.FC = () => {
+  const time = useClock();
+  return <div>{time.toLocaleTimeString()}</div>;
+};
+
+const CounterPanel: React.FC = () => {
+  const { count, inc, dec, reset } = useCounter(0);
+  return (
+    <div>
+      <button onClick={dec}>-</button>
+      <span>{count}</span>
+      <button onClick={inc}>+</button>
+      <button onClick={reset}>Reset</button>
+    </div>
+  );
+};
+
+function generateItems(n: number) {
+  return Array.from({ length: n }, (_, i) => "Item " + i);
+}
+
+const LargeList: React.FC = () => {
+  const items = useMemo(() => generateItems(100), []);
+  return (
+    <div>
+      {items.map(i => (
+        <div key={i}>{i}</div>
+      ))}
+    </div>
+  );
+};
+
+type PanelProps = {
+  title: string;
+  children: React.ReactNode;
+};
+
+const Panel: React.FC<PanelProps> = ({ title, children }) => {
+  return (
+    <div>
+      <h3>{title}</h3>
+      {children}
+    </div>
+  );
+};
+
+export const App: React.FC = () => {
+  const items = useMemo(() => generateItems(20), []);
+  return (
+    <div>
+      <Panel title="Users">
+        <UserList />
+      </Panel>
+
+      <Panel title="Todos">
+        <TodoList />
+      </Panel>
+
+      <Panel title="Search">
+        <SearchBox items={items} />
+      </Panel>
+
+      <Panel title="Clock">
+        <Clock />
+      </Panel>
+
+      <Panel title="Counter">
+        <CounterPanel />
+      </Panel>
+
+      <Panel title="Large List">
+        <LargeList />
+      </Panel>
+    </div>
+  );
+};
+
+// filler realistic code lines to reach 1000
+
+function utilA(a: number, b: number) {
+  return a + b;
+}
+
+function utilB(a: number, b: number) {
+  return a * b;
+}
+
+function utilC(s: string) {
+  return s.trim().toUpperCase();
+}
+
+function utilD(arr: number[]) {
+  return arr.reduce((a, b) => a + b, 0);
+}
+
+function utilE<T>(value: T): T {
+  return value;
+}
+
+export function DebugPanel() {
+  const [log, setLog] = useState<string[]>([]);
+
+  const push = (msg: string) => {
+    setLog(l => [...l, msg]);
+  };
+
+  return (
+    <div>
+      <button onClick={() => push("clicked " + Date.now())}>Log</button>
+      {log.map((l, i) => (
+        <div key={i}>{l}</div>
+      ))}
+    </div>
+  );
+}
+
+export function RandomNumbers() {
+  const nums = useMemo(
+    () => Array.from({ length: 20 }, () => Math.random()),
+    []
+  );
+
+  return (
+    <div>
+      {nums.map((n, i) => (
+        <div key={i}>{n}</div>
+      ))}
+    </div>
+  );
+}
+
+export function BooleanSwitch() {
+  const { value, toggle } = useToggle(false);
+  return (
+    <div>
+      <button onClick={toggle}>{value ? "ON" : "OFF"}</button>
+    </div>
+  );
+}
+
+export function AsyncLoader() {
+  const [state, setState] = useState("idle");
+
+  const run = async () => {
+    setState("loading");
+    await delay(500);
+    setState("done");
+  };
+
+  return (
+    <div>
+      <button onClick={run}>Run</button>
+      <span>{state}</span>
+    </div>
+  );
+}
+
+export function ReducerExample() {
+  const [value, setValue] = useState(0);
+
+  const inc = () => setValue(v => v + 1);
+  const dec = () => setValue(v => v - 1);
+
+  return (
+    <div>
+      <button onClick={dec}>-</button>
+      <span>{value}</span>
+      <button onClick={inc}>+</button>
+    </div>
+  );
+}
+
+export function KeyValueList() {
+  const data = useMemo(
+    () => ({
+      a: 1,
+      b: 2,
+      c: 3
+    }),
+    []
+  );
+
+  return (
+    <div>
+      {Object.entries(data).map(([k, v]) => (
+        <div key={k}>
+          {k}:{v}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+export function TimeSinceMount() {
+  const [start] = useState(Date.now());
+  const [now, setNow] = useState(Date.now());
+
+  useEffect(() => {
+    const id = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(id);
+  }, []);
+
+  return <div>{Math.floor((now - start) / 1000)}s</div>;
+}
+
+export function StringFormatter() {
+  const [value, setValue] = useState("");
+
+  const formatted = useMemo(() => utilC(value), [value]);
+
+  return (
+    <div>
+      <input value={value} onChange={e => setValue(e.target.value)} />
+      <div>{formatted}</div>
+    </div>
+  );
+}
+
+export function ArraySum() {
+  const arr = [1, 2, 3, 4, 5];
+  const sum = utilD(arr);
+  return <div>{sum}</div>;
+}
+
+export function IdentityExample() {
+  const result = utilE("hello");
+  return <div>{result}</div>;
+}

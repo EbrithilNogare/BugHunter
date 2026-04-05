@@ -1,0 +1,257 @@
+.root {
+  background: var(--bg-surface);
+  border-bottom: 1px solid var(--border-default);
+  flex-shrink: 0;
+}
+
+/* ── Row 1: top bar ── */
+.topBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  height: 59px;
+  background: #010409;
+}
+
+.topBarLeft {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.hamburger {
+  background: none;
+  border: none;
+  color: var(--text-primary);
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  opacity: 0.7;
+}
+
+.repoBreadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 14px;
+}
+
+.repoOwner {
+  color: var(--text-primary);
+  font-weight: 400;
+}
+
+.repoSlash {
+  color: var(--border-default);
+  font-size: 18px;
+  font-weight: 200;
+  margin: 0 2px;
+}
+
+.repoName {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+/* ── Row 2: repo nav ── */
+.repoNav {
+  display: flex;
+  align-items: flex-end;
+  padding: 0 8px;
+  background: #010409;
+  overflow-x: auto;
+  scrollbar-width: none;
+  gap: 2px;
+}
+
+.repoNav::-webkit-scrollbar {
+  display: none;
+}
+
+.repoTab {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 12px 8px;
+  font-size: 14px;
+  color: var(--text-secondary);
+  cursor: default;
+  border-bottom: 2px solid transparent;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.repoTabActive {
+  color: var(--text-primary);
+  border-bottom-color: var(--text-secondary);
+}
+
+.repoTabClickable {
+  cursor: pointer;
+}
+
+.repoTabClickable:hover {
+  color: var(--text-primary);
+  background: rgba(177, 186, 196, 0.08);
+  border-radius: 6px 6px 0 0;
+}
+
+.repoTabAction {
+  margin-left: 4px;
+  cursor: pointer;
+  color: var(--text-primary);
+}
+
+.repoTabSettings {
+  color: var(--text-primary);
+}
+
+.repoTabIcon {
+  display: flex;
+  align-items: center;
+  opacity: 0.8;
+}
+
+.repoTabBadge {
+  background: rgba(110, 118, 129, 0.2);
+  border: 1px solid rgba(110, 118, 129, 0.3);
+  border-radius: 20px;
+  padding: 1px 6px;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
+.repoTabActive .repoTabBadge {
+  background: rgba(110, 118, 129, 0.3);
+  color: var(--text-primary);
+}
+
+/* ── PR body ── */
+.body {
+  padding: 10px 16px 0;
+}
+
+.prTitle {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.prTitleText {
+  color: var(--text-primary);
+  font-size: 20px;
+  font-weight: 400;
+}
+
+.prNumber {
+  color: var(--text-secondary);
+  font-size: 20px;
+}
+
+.meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.statusBadge {
+  background: var(--green);
+  color: #fff;
+  border-radius: 999px;
+  padding: 2px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.metaText {
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
+.metaLink {
+  color: var(--blue);
+}
+
+.metaCode {
+  background: var(--bg-elevated);
+  padding: 1px 5px;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+.tabsRow {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border-default);
+  margin-bottom: -1px;
+}
+
+.tabs {
+  display: flex;
+}
+
+.tab {
+  padding: 7px 16px;
+  font-size: 14px;
+  cursor: default;
+  border-bottom: 2px solid transparent;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.tabActive {
+  border-bottom-color: var(--text-secondary);
+  color: var(--text-primary);
+}
+
+.tabBadge {
+  background: var(--bg-elevated);
+  border-radius: 999px;
+  padding: 0 6px;
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+/* ── Diff stat ── */
+.diffStat {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 16px 8px;
+  font-size: 12px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.diffBar {
+  display: flex;
+  gap: 2px;
+  margin-right: 2px;
+}
+
+.diffBarFill {
+  width: 8px;
+  height: 8px;
+  border-radius: 1px;
+  background: var(--green-light);
+}
+
+.diffAdded {
+  color: var(--green-light);
+}
+
+.diffRemoved {
+  color: var(--red);
+}

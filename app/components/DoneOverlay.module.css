@@ -1,0 +1,50 @@
+.backdrop {
+  composes: modal-backdrop from global;
+}
+
+.card {
+  composes: modal-card from global;
+  text-align: center;
+  max-width: 380px;
+}
+
+.emoji {
+  font-size: 48px;
+  margin-bottom: 12px;
+}
+
+.title {
+  color: var(--text-primary);
+  font-size: 24px;
+  margin-bottom: 8px;
+}
+
+.time {
+  color: var(--text-secondary);
+  margin-bottom: 24px;
+}
+
+.timeValue {
+  color: var(--blue);
+}
+
+.nameInput {
+  composes: text-input from global;
+  width: 100%;
+  margin-bottom: 16px;
+  box-sizing: border-box;
+}
+
+.actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.btnGreen {
+  composes: btn-primary from global;
+}
+
+.btnGray {
+  composes: btn-secondary from global;
+}

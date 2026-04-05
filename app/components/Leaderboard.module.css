@@ -1,0 +1,128 @@
+.backdrop {
+  composes: modal-backdrop from global;
+  z-index: 200;
+}
+
+.card {
+  composes: modal-card from global;
+  padding: 32px;
+  width: 440px;
+  max-width: 90vw;
+  display: flex;
+  flex-direction: column;
+  max-height: 80vh;
+}
+
+.title {
+  color: var(--text-primary);
+  margin-bottom: 16px;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.empty {
+  color: var(--text-secondary);
+}
+
+.tableWrap {
+  flex: 1;
+  overflow-y: auto;
+  margin-bottom: 16px;
+  padding: 2px 3px;
+  box-sizing: border-box;
+}
+
+.table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.tableHead th {
+  color: var(--text-secondary);
+  font-size: 12px;
+  text-align: left;
+  padding-bottom: 8px;
+  position: sticky;
+  top: 0;
+  background: var(--bg-surface);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.tableHead th:nth-child(3) {
+  text-align: right;
+}
+
+.tableHead th:nth-child(4) {
+  padding-left: 16px;
+}
+
+.tableRow td {
+  border-top: 1px solid var(--border-subtle);
+}
+
+.tableRowCurrent td {
+  border-top: 1.5px solid var(--red);
+  border-bottom: 1.5px solid var(--red);
+}
+
+.tableRowCurrent td:first-child {
+  border-left: 1.5px solid var(--red);
+  border-radius: 8px 0 0 8px;
+}
+
+.tableRowCurrent td:last-child {
+  border-right: 1.5px solid var(--red);
+  border-radius: 0 8px 8px 0;
+}
+
+.rank {
+  padding: 8px 8px 8px 0;
+  font-size: 14px;
+  width: 36px;
+}
+
+.rankTop {
+  color: var(--gold);
+}
+
+.rankOther {
+  color: var(--text-secondary);
+}
+
+.nameCell {
+  color: var(--text-primary);
+  padding: 8px 12px 8px 0;
+  font-size: 14px;
+  max-width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.anon {
+  color: var(--text-ghost);
+}
+
+.timeCell {
+  color: var(--blue);
+  padding: 8px 0 8px 12px;
+  font-family: monospace;
+  font-size: 14px;
+  white-space: nowrap;
+  text-align: right;
+}
+
+.dateCell {
+  color: var(--text-secondary);
+  padding: 8px 0 8px 16px;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.closeBtn {
+  composes: btn-secondary from global;
+  flex-shrink: 0;
+  width: 100%;
+  padding: 6px 0;
+}

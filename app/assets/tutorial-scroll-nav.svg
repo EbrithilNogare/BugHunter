@@ -1,0 +1,24 @@
+<svg viewBox="0 0 200 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="200" height="120" rx="5" fill="#0d1117"/>
+  <rect width="200" height="22" fill="#161b22"/>
+  <rect x="8" y="7" width="8" height="8" rx="1.5" fill="#3d444d"/>
+  <rect x="20" y="9" width="55" height="4" rx="2" fill="#3d444d"/>
+  <rect x="8" y="31" width="88" height="3" rx="1.5" fill="#21262d"/>
+  <rect x="8" y="40" width="65" height="3" rx="1.5" fill="#21262d"/>
+  <rect x="8" y="49" width="98" height="3" rx="1.5" fill="#21262d"/>
+  <rect x="0" y="59" width="172" height="13" fill="rgba(56,139,253,0.10)"/>
+  <rect x="0" y="59" width="2" height="13" fill="#388bfd"/>
+  <rect x="8" y="64" width="90" height="3" rx="1.5" fill="#21262d"/>
+  <rect x="8" y="79" width="78" height="3" rx="1.5" fill="#21262d"/>
+  <rect x="8" y="88" width="96" height="3" rx="1.5" fill="#21262d"/>
+  <rect x="8" y="97" width="58" height="3" rx="1.5" fill="#21262d"/>
+  <rect x="8" y="106" width="82" height="3" rx="1.5" fill="#21262d"/>
+  <!-- Up arrow button -->
+  <rect x="148" y="29" width="20" height="20" rx="4" fill="#21262d"/>
+  <path d="M154 41 L158 35 L162 41" stroke="#58a6ff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <!-- Down arrow button -->
+  <rect x="148" y="82" width="20" height="20" rx="4" fill="#21262d"/>
+  <path d="M154 88 L158 94 L162 88" stroke="#58a6ff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <!-- Label — midpoint between button centres: (39+92)/2 = 65.5 -->
+  <text x="158" y="65.5" font-size="7" text-anchor="middle" dominant-baseline="middle" fill="#58a6ff" font-family="monospace" opacity="0.7">scroll</text>
+</svg>
