@@ -6,8 +6,7 @@ A browser game disguised as a GitHub pull request review. Hunt down hidden bugs 
 
 ---
 
-<!-- Screenshot: full game view showing the PR interface and code diff -->
-<!-- ![Game overview](screenshots/overview.png) -->
+<img width="600" height="346" alt="Screenshot 2026-04-05 at 15 49 02" src="https://github.com/user-attachments/assets/0a691e76-0faf-40c3-8ac8-db2daa35168b" />
 
 ## What is it?
 
@@ -26,7 +25,7 @@ There's no clicking, no menus, just you and the code. Your final score is your t
 Use your mouse wheel or arrow keys to scroll. The blue highlighted band in the center of the screen is your active line — that's your "cursor".
 
 **2. Find the bug**
-A small arrow badge appears at the top or bottom edge of the screen pointing toward where the bug is hiding. Navigate toward it by scrolling up or down.
+A small arrow badge appears at the top or bottom edge of the screen, pointing toward where the bug is hiding. Navigate toward it by scrolling up or down.
 
 **3. Lock on and wait**
 Once the bug is on your active line, hold still for 1 second. A red ring sweeps around the bug — when it completes, you've caught it.
