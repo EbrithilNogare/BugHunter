@@ -32,14 +32,11 @@ Once the bug is on your active line, hold still for 1 second. A red ring sweeps 
 **4. Repeat**
 A new bug spawns somewhere else in the diff. Find all 10 to finish.
 
-<!-- Screenshot: leaderboard / done screen -->
-<!-- ![Done screen](screenshots/done.png) -->
-
 ---
 
 ## Tips
 
-- The bug is embedded somewhere *within* the line, not always at the start — read carefully.
+- The bug is embedded somewhere _within_ the line, not always at the start — read carefully.
 - Scroll acceleration builds up — slow down before the bug or you'll overshoot.
 - Adjust scroll sensitivity in ⚙ Settings if the default speed feels off.
 
