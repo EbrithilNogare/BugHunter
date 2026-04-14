@@ -108,6 +108,21 @@
   color: var(--text-primary);
 }
 
+.loggingErrorBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--red);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
 .repoTabIcon {
   display: flex;
   align-items: center;

@@ -1,15 +1,20 @@
 import { useState } from "react";
+import { LoggingSettings } from "../hooks/useNewRelicLogger";
 import s from "./SettingsModal.module.css";
 
 interface Props {
   scrollMultiplier: number;
   onScrollMultiplierChange: (val: number) => void;
+  loggingSettings: LoggingSettings;
+  onLoggingSettingsChange: (updates: Partial<LoggingSettings>) => void;
   onClose: () => void;
 }
 
 export function SettingsModal({
   scrollMultiplier,
   onScrollMultiplierChange,
+  loggingSettings,
+  onLoggingSettingsChange,
   onClose,
 }: Props) {
   const [raw, setRaw] = useState(String(scrollMultiplier));
@@ -30,6 +35,7 @@ export function SettingsModal({
     <div className={s.backdrop} onClick={onClose}>
       <div className={s.card} onClick={(e) => e.stopPropagation()}>
         <h2 className={s.title}>Settings</h2>
+
         <div className={s.row}>
           <label className={s.label} htmlFor="scroll-multiplier">
             Scroll sensitivity multiplier
@@ -50,6 +56,28 @@ export function SettingsModal({
           Default is 1. Lower values (e.g. 0.5) scroll slower; higher values
           scroll faster.
         </p>
+
+        <hr className={s.divider} />
+
+        <div className={s.checkboxRow}>
+          <input
+            id="logging-enabled"
+            className={s.checkbox}
+            type="checkbox"
+            checked={loggingSettings.enabled}
+            onChange={(e) =>
+              onLoggingSettingsChange({ enabled: e.target.checked })
+            }
+          />
+          <label className={s.checkboxLabel} htmlFor="logging-enabled">
+            Enable New Relic logging
+          </label>
+        </div>
+        <p className={s.hint}>
+          Logs score, name, and email on each completed game. Local console
+          logging is always active.
+        </p>
+
         <button className={s.closeBtn} onClick={onClose}>
           Close
         </button>

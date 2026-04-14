@@ -4,7 +4,9 @@ import s from "./DoneOverlay.module.css";
 interface Props {
   finalTime: number;
   playerName: string;
+  playerEmail: string;
   onNameChange: (name: string) => void;
+  onEmailChange: (email: string) => void;
   onPlayAgain: () => void;
   onShowLeaderboard: () => void;
 }
@@ -12,7 +14,9 @@ interface Props {
 export function DoneOverlay({
   finalTime,
   playerName,
+  playerEmail,
   onNameChange,
+  onEmailChange,
   onPlayAgain,
   onShowLeaderboard,
 }: Props) {
@@ -37,6 +41,22 @@ export function DoneOverlay({
           maxLength={64}
           value={playerName}
           onChange={(e) => onNameChange(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") onShowLeaderboard();
+          }}
+        />
+        <input
+          className={s.nameInput}
+          type="email"
+          placeholder="Your email (optional, for prize notifications)"
+          autoComplete="off"
+          data-1p-ignore
+          data-lpignore="true"
+          data-bwignore="true"
+          data-form-type="other"
+          maxLength={254}
+          value={playerEmail}
+          onChange={(e) => onEmailChange(e.target.value)}
           onKeyDown={(e) => {
             if (e.key === "Enter") onShowLeaderboard();
           }}

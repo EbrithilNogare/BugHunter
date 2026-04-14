@@ -5,4 +5,5 @@ export interface LeaderboardEntry {
   time: number;
   date: string;
   name: string;
+  email: string;
 }

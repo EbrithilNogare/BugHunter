@@ -110,6 +110,7 @@ interface Props {
   gameState?: GameState;
   onRestartClick?: () => void;
   onScoresClick?: () => void;
+  loggingError?: boolean;
 }
 
 export function PRHeader({
@@ -117,6 +118,7 @@ export function PRHeader({
   gameState,
   onRestartClick,
   onScoresClick,
+  loggingError,
 }: Props) {
   return (
     <div className={s.root}>
@@ -145,6 +147,9 @@ export function PRHeader({
           >
             <span className={s.repoTabIcon}>{tab.icon}</span>
             <span>{tab.label}</span>
+            {tab.label === "Settings" && loggingError && (
+              <span className={s.loggingErrorBadge} title="Logging failed">!</span>
+            )}
             {tab.count !== undefined && (
               <span className={s.repoTabBadge}>{tab.count}</span>
             )}

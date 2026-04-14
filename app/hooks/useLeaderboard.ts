@@ -14,6 +14,7 @@ function loadLeaderboard(): LeaderboardEntry[] {
       time: e.time ?? 0,
       date: e.date ?? "",
       name: e.name ?? "",
+      email: e.email ?? "",
     }));
   } catch {
     return [];
@@ -45,6 +46,7 @@ export function useLeaderboard() {
         timeStyle: "medium",
       }),
       name: "",
+      email: "",
     };
     setLeaderboard((prev) => {
       const updated = [...prev, entry].sort((a, b) => a.time - b.time);
@@ -67,5 +69,19 @@ export function useLeaderboard() {
     [currentEntryId],
   );
 
-  return { leaderboard, currentEntryId, saveScore, updateName };
+  const updateEmail = useCallback(
+    (email: string) => {
+      if (!currentEntryId) return;
+      setLeaderboard((prev) => {
+        const updated = prev.map((e) =>
+          e.id === currentEntryId ? { ...e, email } : e,
+        );
+        persist(updated);
+        return updated;
+      });
+    },
+    [currentEntryId],
+  );
+
+  return { leaderboard, currentEntryId, saveScore, updateName, updateEmail };
 }

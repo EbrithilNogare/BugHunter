@@ -14,6 +14,7 @@ import { formatTime } from "../utils";
 import { useLeaderboard } from "../hooks/useLeaderboard";
 import { useScrollMultiplier } from "../hooks/useScrollMultiplier";
 import { useScrollInput } from "../hooks/useScrollInput";
+import { useNewRelicLogger } from "../hooks/useNewRelicLogger";
 import { BugCounter } from "./BugCounter";
 import { CodeViewer } from "./CodeViewer";
 import { Minimap } from "./Minimap";
@@ -45,13 +46,16 @@ export function Game() {
   const [scrollIndex, setScrollIndex] = useState(0);
   const [visibleLineCount, setVisibleLineCount] = useState(VISIBLE_LINES);
   const [playerName, setPlayerName] = useState("");
+  const [playerEmail, setPlayerEmail] = useState("");
   const [showLeaderboard, setShowLeaderboard] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
 
-  const { leaderboard, currentEntryId, saveScore, updateName } =
+  const { leaderboard, currentEntryId, saveScore, updateName, updateEmail } =
     useLeaderboard();
   const { scrollMultiplier, scrollMultiplierRef, updateScrollMultiplier } =
     useScrollMultiplier();
+  const { loggingSettings, loggingError, updateLoggingSettings, log } =
+    useNewRelicLogger();
 
   const usedLinesRef = useRef<Set<number>>(new Set());
   const foundCountRef = useRef(0);
@@ -130,6 +134,7 @@ export function Game() {
     setScrollIndex(0);
     setElapsed(0);
     setPlayerName("");
+    setPlayerEmail("");
     setGameState("playing");
 
     const now = Date.now();
@@ -160,6 +165,13 @@ export function Game() {
     [],
   );
 
+  const handleLogScore = useCallback(
+    (name: string, email: string, time: number) => {
+      log({ event: "score", name, email, gameTime: time, bugCount: TOTAL_BUGS });
+    },
+    [log],
+  );
+
   const visibleLines = CODE_LINES.slice(
     scrollIndex,
     scrollIndex + visibleLineCount,
@@ -173,6 +185,7 @@ export function Game() {
         gameState={gameState}
         onRestartClick={startGame}
         onScoresClick={() => setShowLeaderboard((v) => !v)}
+        loggingError={loggingError}
       />
 
       <div className={s.toolbar}>
@@ -190,12 +203,23 @@ export function Game() {
         <DoneOverlay
           finalTime={finalTime}
           playerName={playerName}
+          playerEmail={playerEmail}
           onNameChange={(name) => {
             setPlayerName(name);
             updateName(name);
           }}
-          onPlayAgain={startGame}
-          onShowLeaderboard={() => setShowLeaderboard(true)}
+          onEmailChange={(email) => {
+            setPlayerEmail(email);
+            updateEmail(email);
+          }}
+          onPlayAgain={() => {
+            handleLogScore(playerName, playerEmail, finalTime);
+            startGame();
+          }}
+          onShowLeaderboard={() => {
+            handleLogScore(playerName, playerEmail, finalTime);
+            setShowLeaderboard(true);
+          }}
         />
       )}
 
@@ -214,6 +238,8 @@ export function Game() {
         <SettingsModal
           scrollMultiplier={scrollMultiplier}
           onScrollMultiplierChange={updateScrollMultiplier}
+          loggingSettings={loggingSettings}
+          onLoggingSettingsChange={updateLoggingSettings}
           onClose={() => setShowSettings(false)}
         />
       )}
