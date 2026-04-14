@@ -115,7 +115,9 @@ export function useNewRelicLogger() {
   // Keep a ref to the latest enabled flag so the console interceptor
   // (installed once) always sees the current value.
   const enabledRef = useRef(settings.enabled);
-  enabledRef.current = settings.enabled;
+  useEffect(() => {
+    enabledRef.current = settings.enabled;
+  }, [settings.enabled]);
 
   useEffect(() => {
     setSettings(loadSettings());
@@ -152,9 +154,7 @@ export function useNewRelicLogger() {
     function forward(level: LogLevel, args: unknown[]) {
       if (!enabledRef.current || !NEW_RELIC_API_KEY) return;
       const message = args
-        .map((a) =>
-          typeof a === "string" ? a : JSON.stringify(a),
-        )
+        .map((a) => (typeof a === "string" ? a : JSON.stringify(a)))
         .join(" ");
       const entry: LocalLogEntry = {
         timestamp: Date.now(),

@@ -25,7 +25,14 @@ import { DoneOverlay } from "./DoneOverlay";
 import { SettingsModal } from "./SettingsModal";
 import s from "./Game.module.css";
 
-function pickBugLine(usedLines: Set<number>, min: number, max: number): number {
+const MIN_BUG_DISTANCE = 50;
+
+function pickBugLine(
+  usedLines: Set<number>,
+  min: number,
+  max: number,
+  prevLine: number,
+): number {
   const range = max - min + 1;
   let line = min;
   let attempts = 0;
@@ -33,7 +40,7 @@ function pickBugLine(usedLines: Set<number>, min: number, max: number): number {
     line = min + Math.floor(Math.random() * range);
     attempts++;
     if (attempts > range * 2) break;
-  } while (usedLines.has(line));
+  } while (usedLines.has(line) || Math.abs(line - prevLine) < MIN_BUG_DISTANCE);
   return line;
 }
 
@@ -63,6 +70,7 @@ export function Game() {
   const startTimeRef = useRef(0);
   const visibleLineCountRef = useRef(VISIBLE_LINES);
   const codeAreaRef = useRef<HTMLDivElement>(null);
+  const prevBugLineRef = useRef(-1);
 
   const centerOffset = Math.floor(visibleLineCount / 2);
   const bugCentered = Math.abs(bugLine - (scrollIndex + centerOffset)) <= 2;
@@ -97,8 +105,9 @@ export function Game() {
     const co = Math.floor(vl / 2);
     const min = co;
     const max = Math.max(min, CODE_LINES.length - vl + co);
-    const line = pickBugLine(usedLinesRef.current, min, max);
+    const line = pickBugLine(usedLinesRef.current, min, max, prevBugLineRef.current);
     usedLinesRef.current.add(line);
+    prevBugLineRef.current = line;
     setBugLine(line);
   }, []);
 
@@ -129,6 +138,7 @@ export function Game() {
 
     usedLinesRef.current = new Set();
     foundCountRef.current = 0;
+    prevBugLineRef.current = -1;
 
     setFoundCount(0);
     setScrollIndex(0);
